@@ -1,0 +1,32 @@
+<input [formControl]="control" [type]="type" class="block w-full py-1.5 px-3 text-gray-200 border border-gray-400 transition
+duration-500 focus:outline-none rounded bg-transparent focus:border-indigo-400" [placeholder]="placeholder" [mask]="format" [dropSpecialCharacters]="false"/>
+<ng-container *ngIf="control.touched && control.dirty">
+
+
+    <!-- Password -->
+    <p class="text-red-400" *ngIf="control.errors?.pattern">
+        Password must be at least 8 character long, have 1 
+        uppercase letter, 1 lowercase letter, and 1 number
+    </p>
+
+    <p *ngIf="control.errors?.required  " class="text-red-400">
+        Field is required</p>
+   
+   <!-- Name error message -->
+    <p *ngIf="control.errors?.minlength" class="text-red-400">
+        The input is too short
+        It must be {{control.errors?.minlength.requiredLength}} caracter long
+    </p>
+
+    <!-- Email error message -->
+    <p *ngIf="control.errors?.email " class="text-red-400">
+        You must enter a valid email.
+    </p>
+
+    <!-- Age error message -->
+    <p *ngIf="control.errors?.min " class="text-red-400">
+        You must be older than 18.
+    </p>
+
+
+</ng-container>

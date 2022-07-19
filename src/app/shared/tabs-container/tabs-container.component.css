@@ -1,0 +1,7 @@
+.highlighted :hover{
+    color: rgb(129 140 248);
+}
+.unHighlighted :hover{
+    color: text-white ;
+    background-color:rgb(129 140 248);
+}
