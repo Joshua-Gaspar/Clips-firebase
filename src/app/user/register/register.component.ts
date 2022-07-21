@@ -17,7 +17,7 @@ export class RegisterComponent {
 
   email = new FormControl('', [Validators.required, Validators.email]);
 
-  age = new FormControl('', [
+  age = new FormControl(null, [
     Validators.required,
     Validators.min(18),
     Validators.max(120),
@@ -29,7 +29,7 @@ export class RegisterComponent {
   ]);
 
   confirmPassword = new FormControl('', [Validators.required]);
-  phone = new FormControl('', [
+  phoneNumber = new FormControl('', [
     Validators.required,
     Validators.maxLength(13),
     Validators.minLength(13),
@@ -45,7 +45,7 @@ export class RegisterComponent {
     age: this.age,
     password: this.password,
     confirmPassword: this.confirmPassword,
-    phone: this.phone,
+    phoneNumber: this.phoneNumber,
   });
 
   async register() {
@@ -54,21 +54,20 @@ export class RegisterComponent {
     this.alertColor = 'blue';
     this.inSubmission = true;
 
-    // (await this.auth.createUser(this.registerForm.value as IUser)).subscribe(
-    //   (res) => {
-    //     console.log(res);
-    //   },
-    //   (error) => {
-    //     console.error(error);
-    //     this.alertMsg = 'An unexpected error occurred. Please try again later';
-    //     this.alertColor = 'red';
-    //     this.inSubmission = false;
-    //     return;
-    //   }
-    // );
+    try {
 
-    // this.alertMsg = 'Success!! Your account has been created.';
-    // this.alertColor = 'green';
+      await this.auth.createUser(this.registerForm.value as IUser)
 
+    } catch (err) {
+      console.error(err);
+
+      this.alertMsg = 'An unexpected error occurred. Please try again later';
+      this.alertColor = 'red';
+      this.inSubmission = false;
+      return;
+    }
+
+    this.alertMsg = 'Success! Your account has being created.';
+    this.alertColor = 'green';
   }
 }

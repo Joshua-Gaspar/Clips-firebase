@@ -1,60 +1,56 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import {
+  AngularFirestore,
+  AngularFirestoreCollection,
+} from '@angular/fire/compat/firestore';
+import { Observable } from 'rxjs';
+import { delay, map } from 'rxjs/operators';
 import IUser from '../models/user.model';
-import { BehaviorSubject } from 'rxjs';
+
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  private userCollection: AngularFirestoreCollection<IUser>;
+  public isAuthenticated$:Observable<boolean>
+  public isAuthenticatedWithDelay$:Observable<boolean>
 
-  // userProfile:BehaviorSubject<IUser> = new BehaviorSubject<IUser>({
-  //   email: '',
-  //   name: '',
-  //   age:0,
-  //   phone:'',
-  // })
+  constructor(private auth: AngularFireAuth, private db: AngularFirestore) {
+    this.userCollection = db.collection('users');
 
-  // userProfile: any
+    this.isAuthenticated$ = auth.user.pipe(
+      map(user => !!user)
+    )
 
-  constructor(private http: HttpClient) {
-    // this.getUserProfile()
-
+    this.isAuthenticatedWithDelay$ = this.isAuthenticated$.pipe(
+      delay(1000)
+    )
   }
 
-//   public async httpTest(){
-//     return this.http.get('http://localhost:8000/auth/test').subscribe(res =>{
-//       console.log(res)
-//     });
-//   }
+  public async createUser(userData: IUser) {
+    if (!userData.password) {
+      throw new Error('Password not provided!');
+    }
 
-//   public async createUser(userData: IUser) {
-//     return this.http.post('http://localhost:8000/auth/register', userData);
-//   }
+    const userCred = await this.auth.createUserWithEmailAndPassword(
+      userData.email as string,
+      userData.password as string
+    );
 
-//   public async LoginUser(userData: IUser) {
-//     return this.http.post('http://localhost:8000/auth/login', userData, {
-//       withCredentials: true,
-//     });
-//   }
+    if (!userCred.user) {
+      throw new Error("User can't be found");
+    }
 
-//   public async getUserProfile() {
-//     return this.http.get<IUser>('http://localhost:8000/auth/userProfile', {
-//       withCredentials: true,
-//   })
-//   .subscribe(
-//     res =>{
+    await this.userCollection.doc(userCred.user.uid).set({
+      name: userData.name,
+      email: userData.email,
+      age: userData.age,
+      phoneNumber: userData.phoneNumber,
+    });
 
-//       console.log(res)
-      
-//     }
-//   )
-// }
-
-// saveUserToLocalStorage(user:any){
-//   this.getUserProfile()
-//   this.userProfile.next(user);
-//   localStorage.setItem('user-profile',JSON.stringify(user))
-// }
-  
-
+    await userCred.user.updateProfile({
+      displayName: userData.name,
+    });
+  }
 }

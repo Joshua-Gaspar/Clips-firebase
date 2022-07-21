@@ -1,9 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-// import { HttpClient } from '@angular/common/http';
-import { AuthService } from 'src/app/services/auth.service';
-import IUser from 'src/app/models/user.model';
-import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -11,19 +8,24 @@ import { switchMap } from 'rxjs';
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent implements OnInit {
+
+  // credentials = {
+  //   email: '',
+  //   password: '',
+  // };
+
+  showAlert =false ;
+  alertMsg = 'Please wait! We are logging you in';
+  alertColor = 'blue';
   inSubmission = false;
 
-  constructor(private auth: AuthService) {}
+  constructor(private auth: AngularFireAuth) {}
 
   ngOnInit(): void {}
 
   email = new FormControl('', [Validators.required, Validators.email]);
 
   password = new FormControl('', [Validators.required]);
-
-  showAlert = false;
-  alertMsg = 'Signing in.';
-  alertColor = 'blue';
 
   loginForm = new FormGroup({
     email: this.email,
@@ -32,26 +34,28 @@ export class LoginComponent implements OnInit {
 
   async login() {
     this.showAlert = true;
-    this.alertMsg = 'Signing in.';
+    this.alertMsg = 'Please wait! We are logging you in';
     this.alertColor = 'blue';
     this.inSubmission = true;
 
-    console.log(this.loginForm.value);
+    try {
+      await this.auth.signInWithEmailAndPassword(
+        this.email.value,
+        this.password.value
+      );
+    } catch (err) {
+      console.log(err)
+      this.alertMsg = 'Unexpected error occur';
+      this.alertColor = 'red';
+      this.inSubmission = false;
+      return
+  
+    }
 
-    // (await this.auth.LoginUser(this.loginForm.value)).subscribe(
-    //   (res) => {
-    //     console.log(res);
-    //     this.alertMsg = 'Login succesful';
-    //     this.alertColor = 'green';
-    //   },
-    //   (error) => {
-    //     this.alertMsg = 'An unexpected error occurred. Please try again later';
-    //     this.alertColor = 'red';
-    //     this.inSubmission = false;
-    //     return
-    //   }
+    this.alertMsg = 'You are logging ';
+    this.alertColor = 'green';
+    this.inSubmission = true;
 
-    // );
- 
+
   }
 }
