@@ -12,7 +12,8 @@ export class NavComponent implements OnInit {
   constructor(
     public modalService: ModalService,
     public auth: AuthService,
-    private afAuth: AngularFireAuth
+    private afAuth: AngularFireAuth,
+
   ) {}
 
   ngOnInit(): void {}
@@ -23,10 +24,8 @@ export class NavComponent implements OnInit {
     this.modalService.toggleModal('auth');
   }
 
- async logout($event: Event) {
-    $event.preventDefault();
-
-   await this.afAuth.signOut()
-   //fixed
+  logout($event: Event){
+    this.auth.logout($event)
   }
+  
 }
